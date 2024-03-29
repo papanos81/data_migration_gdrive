@@ -74,27 +74,13 @@ def main():
                     document.append(i)
                 case 'application/pdf':
                     pdf.append(i)
-                case 'video/mp4':
+                case 'video/mp4':   
                     mp4.append(i)
 
-            print('Number of pdf files {0}'.format(len(pdf)))
-            print('Names:')
-            [print(i['name'], i['id']) for i in pdf]
-            print("---------------\n")
-            print('Number of Folders {0}'.format(len(folders))) 
-            print('Names:')
-            [print(i['name'], i['id']) for i in folders]   
-            print("---------------\n")
-            print('Number of Other documents {0}'.format(len(document)))
-            print('Names:')
-            [print(i['name'], i['id']) for i in document]
-            print("---------------\n")
-            print('Number of Other documents {0}'.format(len(mp4)))
-            print('Names:')
-            [print(i['name'], i['id']) for i in mp4]
-    
     except TypeError as type_error:        
         print(f'Type Error in ***func get_first_level()*** {type_error}')  
+    
+    return folders, document, pdf, mp4
  
 
 def iterfiles(name=None, *, is_folder=None, parent=None, id=None,
@@ -122,7 +108,7 @@ def iterfiles(name=None, *, is_folder=None, parent=None, id=None,
         except KeyError:
             return
 
-def walk(top=None, *, by_name: bool = False, id ='1-1ccqaNumWCBzNr0XXxueInrexA776bo'):
+def walk(top=None, *, by_name: bool = False, id=None, entity_name=None):
     try:
         if by_name:
             top = iterfiles(name=top, is_folder=True, id=id)
@@ -144,12 +130,14 @@ def walk(top=None, *, by_name: bool = False, id ='1-1ccqaNumWCBzNr0XXxueInrexA77
             if dirs:
                 stack.extend((path + (d['name'],), d) for d in reversed(dirs))
     except TypeError as type_error:
-        print(f"Type Error in ***func walk()*** : {type_error}")
+        print(f"Type Error in ***func walk()*** for entity: {entity_name} and type: {type_error}")
 
-for kwargs in [{'top': 'spam', 'by_name': True}, {}]:
-    for path, root, dirs, files in walk(**kwargs):
-        print('/'.join(path), f'===> nbre folders: {len(dirs):d} nbre files: {len(files):d}', sep='\t')
 
 if __name__ == "__main__":
-    # main()
-    walk()
+    for id in main()[0]:
+        for kwargs in [{'by_name': False, 'id': id['id'], 'entity_name': id['name']}, {}]:
+            try:
+                for path, root, dirs, files in walk(**kwargs):
+                    print('/'.join(path), f'===> nbre folders: {len(dirs):d} nbre files: {len(files):d}', sep='\t')
+            except Exception as e:
+                print(id['name'], e)
