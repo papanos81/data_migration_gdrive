@@ -24,7 +24,7 @@ def connection():
 
 
 def insert_data(table_name: str, data: tuple):
-    with open("staging/inserts_sql.yaml") as r:
+    with open("staging/queries_sql.yaml") as r:
         file = yml(r)
     query = file['inserts'][table_name]
 
