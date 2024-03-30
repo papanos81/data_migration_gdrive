@@ -1,0 +1,9 @@
+inserts:
+  metadata_raw_folder:  "INSERT INTO metadata_raw_folder VALUES (%s, %s, %s)"
+  metadata_raw_first_level: "INSERT INTO metadata_raw_first_level(doc_id, name, mime_type) VALUES (%s, %s, %s)"
+  raw_data: "INSERT INTO raw_data(raw_json_data) VALUES (%s)"
+
+selects:
+  metadata_raw_folder:
+    query: "SELECT {} FROM metadata_raw_folder"
+    args: ['path', 'nbre_folders', 'nbre_files']

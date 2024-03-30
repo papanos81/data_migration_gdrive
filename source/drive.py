@@ -34,7 +34,7 @@ def get_files():
     results = service.files().list(
                 corpora='user',
                 pageSize=1000, 
-                # fields="nextPageToken, files(id, name, parents, mimeType, fileExtension, nextLink)"
+                fields="nextPageToken, files(id, name, parents, mimeType)"
                 ).execute()
     items = results.get('files', [])
     return items
@@ -130,7 +130,10 @@ def get_folder_structure(func: tuple) -> list:
     return data
 
 def main():
-    data = [i for i in get_all_files()] 
+    data= [i for i in get_first_level()]
     return data
+    # data = [i for i in get_all_files()] 
+    # return data
+
     
   

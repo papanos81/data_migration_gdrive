@@ -1,10 +1,14 @@
 import psycopg2
+from psycopg2 import sql
 import json
 import os
+from yaml import safe_load as yml
 from os.path import join, dirname
-from source import main
+from source import main, get_folder_structure
 from dotenv import load_dotenv
 
+dotenv_path = join(dirname(__file__), '.env')
+load_dotenv(dotenv_path=dotenv_path)
 
 def connection():
 
@@ -19,30 +23,14 @@ def connection():
     return con
 
 
-def insert_data(data: list):
-    sql = 'INSERT INTO metadata_raw_folder VALUES (%s, %s, %s)'
+def insert_data(table_name: str, data: tuple):
+    with open("staging/inserts_sql.yaml") as r:
+        file = yml(r)
+    query = file['inserts'][table_name]
+
     with connection() as con:
         curs = con.cursor()
-        for i in data:
-            try:
-                curs.execute(sql, (i['path'], i['nbre_folders'], i['nbre_files']))
-            except Exception as e:
-                print(f'Couldn\'t insert the data: {e}')
-
-
-def insert_raw_data(data: list):
-    sql = "INSERT INTO raw_data(raw_json_data) VALUES (%s)"
-    with connection() as con:
-        curs = con.cursor()
-        for i in data:
-            try:
-                curs.execute(sql, (json.dumps(i),))
-            except Exception as e:
-                print(f'Couldn\'t insert the data: {e}')
-
-
+        curs.execute(query, data)
 
 if __name__=='__main__':
-    dotenv_path = join(dirname(__file__), '.env')
-    load_dotenv(dotenv_path=dotenv_path)
-    insert_raw_data(main())
+    pass
