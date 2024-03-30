@@ -34,9 +34,21 @@ def get_files():
     results = service.files().list(
                 corpora='user',
                 pageSize=1000, 
-                fields="nextPageToken, files(id, name, parents, mimeType)").execute()
+                # fields="nextPageToken, files(id, name, parents, mimeType, fileExtension, nextLink)"
+                ).execute()
     items = results.get('files', [])
     return items
+
+def get_all_files():
+     params = {'pageToken':None}
+     while True:
+        response = connection().files().list(**params).execute()
+        for f in response['files']:
+            yield f
+        try:
+            params['pageToken'] = response['nextPageToken']
+        except KeyError:
+            return
 
 def get_first_level():
     items = get_files()
@@ -55,33 +67,7 @@ def get_first_level():
                          })
     return data
 
-"""
-    Main function
-"""
-def main():
 
-    folders = []
-    document = []
-    pdf = []
-    mp4 = []
-
-    try:
-        for i in get_first_level():
-            match i['Type']:
-                case 'application/vnd.google-apps.folder':
-                    folders.append(i)
-                case 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-                    document.append(i)
-                case 'application/pdf':
-                    pdf.append(i)
-                case 'video/mp4':   
-                    mp4.append(i)
-
-    except TypeError as type_error:        
-        print(f'Type Error in ***func get_first_level()*** {type_error}')  
-    
-    return folders, document, pdf, mp4
- 
 
 def iterfiles(name=None, *, is_folder=None, parent=None, id=None,
               order_by='folder,name,createdTime'):
@@ -132,12 +118,19 @@ def walk(top=None, *, by_name: bool = False, id=None, entity_name=None):
     except TypeError as type_error:
         print(f"Type Error in ***func walk()*** for entity: {entity_name} and type: {type_error}")
 
-
-if __name__ == "__main__":
-    for id in main()[0]:
+def get_folder_structure(func: tuple) -> list:
+    data = []
+    for id in func:
         for kwargs in [{'by_name': False, 'id': id['id'], 'entity_name': id['name']}, {}]:
             try:
                 for path, root, dirs, files in walk(**kwargs):
-                    print('/'.join(path), f'===> nbre folders: {len(dirs):d} nbre files: {len(files):d}', sep='\t')
+                    data.append({'path':'/'.join(path), 'nbre_folders': f'{len(dirs):d}',  'nbre_files': f'{len(files):d}'})
             except Exception as e:
                 print(id['name'], e)
+    return data
+
+def main():
+    data = [i for i in get_all_files()] 
+    return data
+    
+  

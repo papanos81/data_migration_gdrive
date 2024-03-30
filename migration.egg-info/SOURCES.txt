@@ -1,0 +1,11 @@
+README.md
+setup.py
+migration.egg-info/PKG-INFO
+migration.egg-info/SOURCES.txt
+migration.egg-info/dependency_links.txt
+migration.egg-info/top_level.txt
+source/__init__.py
+source/drive.py
+staging/__init__.py
+staging/load.py
+target/__init__.py
